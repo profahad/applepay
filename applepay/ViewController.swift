@@ -35,10 +35,12 @@ extension ViewController:PKPaymentAuthorizationViewControllerDelegate{
     
     func requestPayment(product: String, price: Double) {
         let request = PKPaymentRequest()
-        request.merchantIdentifier = "merchant.com.guidefi.applepay"
+        request.merchantIdentifier = "merchant.com.stackcru.applepay"
         request.supportedNetworks = [PKPaymentNetwork.visa,
                                      PKPaymentNetwork.masterCard,
                                      PKPaymentNetwork.amex,
+                                     PKPaymentNetwork.discover,
+                                     PKPaymentNetwork.discover,
                                      PKPaymentNetwork.quicPay]
         request.merchantCapabilities = PKMerchantCapability.capability3DS
         request.countryCode = "US"
