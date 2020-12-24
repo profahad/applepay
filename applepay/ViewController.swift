@@ -12,6 +12,8 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var buttonBuy: UIButton!
     
+    private var localPayment: PKPayment?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -34,6 +36,7 @@ class ViewController: UIViewController {
 extension ViewController:PKPaymentAuthorizationViewControllerDelegate{
     
     func requestPayment(product: String, price: Double) {
+        self.localPayment = nil
         let request = PKPaymentRequest()
         request.merchantIdentifier = "merchant.com.stackcru.applepay"
         request.supportedNetworks = [PKPaymentNetwork.visa,
@@ -64,14 +67,29 @@ extension ViewController:PKPaymentAuthorizationViewControllerDelegate{
     }
     
     func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
-        controller.dismiss(animated: true, completion: nil)
+        controller.dismiss(animated: true) {
+            if let payment = self.localPayment  {
+                self.alert(title: "Transaction", message: "Transaction made successfully.\nHere is transaction Ref # \(payment.token.transactionIdentifier ?? "")")
+            }
+        }
+
     }
     
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
-        completion(PKPaymentAuthorizationResult(status: PKPaymentAuthorizationStatus.success, errors: []))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.alert(title: "Transaction", message: "Transaction made successfully.\nHere is transaction Ref # \(payment.token.transactionIdentifier ?? "")")
+        if payment.token.paymentData.base64EncodedString() != nil {
+            self.localPayment =  payment;
+            completion(PKPaymentAuthorizationResult(status: PKPaymentAuthorizationStatus.success, errors: []))
+        } else {
+            completion(PKPaymentAuthorizationResult(status: PKPaymentAuthorizationStatus.failure, errors: []))
         }
-        
+    }
+}
+
+
+extension UIViewController {
+    func presentOnRoot(`with` viewController : UIViewController){
+        let navigationController = UINavigationController(rootViewController: viewController)
+        navigationController.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
+        self.present(navigationController, animated: false, completion: nil)
     }
 }
