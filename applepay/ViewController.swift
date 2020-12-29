@@ -27,7 +27,7 @@ class ViewController: UIViewController {
     
     
     @IBAction func purchaseItem(_ sender: Any) {
-        self.requestPayment(product: "Canon EOS 80D DSLR", price: 199.0)
+        self.requestPayment(product: "Canon EOS 80D DSLR", price: 1.0)
     }
     
 }
